@@ -1,3 +1,10 @@
+// Supabase Bağlantı Bilgileri
+const SUPABASE_URL = "https://uzkirfftjynlhkezzui.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6aWtpcmZmanlubGpoa2V4enVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDc1ODcsImV4cCI6MjEwNDk4MzU4N30.LArEP62VM9SSINuapv79gaCb1ARdKFYbZ04l04yvPGc";
+
+// Supabase İstemcisini Başlat
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 var games = [
     { id: 1, title: "Zıplayan Top", type: "physics", size: "1 KB" },
     { id: 2, title: "Çekim Kuvveti", type: "physics2", size: "1.2 KB" },
@@ -12,13 +19,27 @@ var creatorContainer = document.getElementById("creator-container");
 var displayArea = document.getElementById("display-area");
 var activeInterval = null;
 
-function loadGameList() {
+// Supabase'den oyunları çeken ve ekrana basan fonksiyon
+async function loadGameList() {
+    gameGrid.innerHTML = "<p style='color:#94a3b8;'>Oyunlar yükleniyor...</p>";
+
+    // Supabase 'games' tablosundan veri çekiyoruz
+    const { data: dbGames, error } = await supabase
+        .from('games')
+        .select('*')
+        .order('id', { ascending: false });
+
+    // Eğer veritabanında veri varsa yerel listemizi güncelliyoruz
+    if (!error && dbGames && dbGames.length > 0) {
+        games = dbGames;
+    }
+
     gameGrid.innerHTML = "";
     for (var i = 0; i < games.length; i++) {
         var game = games[i];
         var card = document.createElement("div");
         card.className = "game-card";
-        card.innerHTML = "<strong>" + game.title + "</strong><br><small class='game-size'>" + game.size + "</small>";
+        card.innerHTML = "<strong>" + game.title + "</strong><br><small class='game-size'>" + (game.size || '1.0 KB') + "</small>";
         
         (function(g) {
             card.onclick = function() { launchGame(g); };
@@ -68,7 +89,8 @@ function launchGame(game) {
     }, 300);
 }
 
-function publishGame() {
+// Oyunu Supabase Veritabanına Kaydeden Fonksiyon
+async function publishGame() {
     var title = document.getElementById("newGameTitle").value.trim();
     var type = document.getElementById("newGameType").value;
     
@@ -85,7 +107,7 @@ function publishGame() {
     progressBar.style.width = "0%";
 
     var progress = 0;
-    var interval = setInterval(function() {
+    var interval = setInterval(async function() {
         progress += 2;
         if (progress <= 100) {
             progressBar.style.width = progress + "%";
@@ -93,15 +115,17 @@ function publishGame() {
             if (progress === 70) statusText.innerText = "Küresel sunucuya işleniyor...";
         } else {
             clearInterval(interval);
-            statusText.innerText = "Başarıyla onaylandı ve yayınlandı!";
             
-            var newGame = {
-                id: games.length + 1,
-                title: title,
-                type: type,
-                size: "1.1 KB"
-            };
-            games.unshift(newGame);
+            // Supabase Veritabanına Kayıt
+            const { error } = await supabase
+                .from('games')
+                .insert([{ title: title, type: type, size: "1.1 KB" }]);
+
+            if (error) {
+                console.error("Veritabanına kaydedilirken hata:", error);
+            }
+
+            statusText.innerText = "Başarıyla onaylandı ve yayınlandı!";
 
             setTimeout(function() {
                 showHome();
