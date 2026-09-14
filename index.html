@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doki - Dinamik Mini Game Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-d">
+                <div class="logo-line"></div>
+                <div class="logo-line"></div>
+                <div class="logo-line"></div>
+            </div>
+            <h1>Doki</h1>
+        </div>
+        <p class="subtitle">Dinamik Oyun Hub & Yayın Stüdyosu</p>
+        <div class="nav-bar">
+            <button class="nav-btn" onclick="showHome()">Oyun Listesi</button>
+            <button class="nav-btn" onclick="showCreator()">+ Kendi Oyununu Yap</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Oyun Listesi -->
+        <section id="game-selection" class="section-view">
+            <div id="game-grid"></div>
+        </section>
+
+        <!-- Oyun Oynama Ekranı -->
+        <section id="game-container" class="hidden section-view">
+            <button class="back-btn" onclick="showHome()">← Oyunlara Dön</button>
+            <div id="display-area"></div>
+        </section>
+
+        <!-- Kendi Oyununu Yap Stüdyosu -->
+        <section id="creator-container" class="hidden section-view">
+            <div class="editor-box">
+                <h3>Doki Küresel Yayın Stüdyosu</h3>
+                
+                <div class="row-group">
+                    <div>
+                        <label>Oyun Adı:</label>
+                        <input type="text" id="newGameTitle" placeholder="Örn: Zıplayan Küp">
+                    </div>
+                    <div>
+                        <label>Oyun Mantığı:</label>
+                        <select id="newGameType">
+                            <option value="physics">Fizik / Yerçekimi Oyunu</option>
+                            <option value="clicker">Tıkla Kazan Oyunu</option>
+                            <option value="empty_chill">Boş Boş Bakmalık / Sakin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row-group">
+                    <div>
+                        <label>TS / JS Kodu:</label>
+                        <textarea id="tsCode" rows="4" placeholder="// Oyun mantık kodları..."></textarea>
+                    </div>
+                    <div>
+                        <label>Özel CSS:</label>
+                        <textarea id="cssCode" rows="4" placeholder="/* Stil kodları... */"></textarea>
+                    </div>
+                </div>
+                
+                <button class="nav-btn publish-btn" id="publishBtn" onclick="publishGame()">Global Sunucuya Gönder ve Yayınla</button>
+                
+                <!-- Gizli Yüklenme Çubuğu -->
+                <div id="loading-overlay">
+                    <p id="publishStatus">Otomatik bot virüs taraması yapıyor ve sunucuya işleniyor...</p>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
